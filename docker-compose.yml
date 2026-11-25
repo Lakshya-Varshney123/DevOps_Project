@@ -1,0 +1,29 @@
+services:
+  gateway:
+    build: ./gateway
+    ports: ["5000:5000"]
+    environment:
+      CATALOG_URL: http://catalog:5001
+      ORDER_URL: http://orders:5002
+    depends_on: [catalog, orders]
+    restart: unless-stopped
+  catalog:
+    build: ./catalog
+    restart: unless-stopped
+  orders:
+    build: ./orders
+    environment:
+      CATALOG_URL: http://catalog:5001
+      PAYMENT_URL: http://payments:5003
+      NOTIFICATION_URL: http://notifications:5004
+    depends_on: [catalog, payments, notifications]
+    volumes: [order_data:/data]
+    restart: unless-stopped
+  payments:
+    build: ./payments
+    restart: unless-stopped
+  notifications:
+    build: ./notifications
+    restart: unless-stopped
+volumes:
+  order_data:
